@@ -1,0 +1,91 @@
+INSERT INTO CLIENTE (
+    ID, NOME, CEP, CPF_CNPJ,
+    ENDERECO, NUMERO, COMPLEMENTO,
+    BAIRRO, CIDADE, DATANASCIMENTO
+)
+VALUES (
+    1,
+    'Maria Silva',
+    '01001000',
+    '12345678901',
+    'Rua das Flores',
+    '100',
+    'Apto 12',
+    'Centro',
+    25,
+    '1990-05-10'
+);
+
+INSERT INTO CLIENTE (
+    ID, NOME, CEP, CPF_CNPJ,
+    ENDERECO, NUMERO, COMPLEMENTO,
+    BAIRRO, CIDADE, DATANASCIMENTO
+)
+VALUES (
+    2,
+    'João Pereira',
+    '30140071',
+    '98765432100',
+    'Av. Brasil',
+    '250',
+    '',
+    'Savassi',
+    13,
+    '1985-08-22'
+);
+
+INSERT INTO CLIENTE (
+    ID, NOME, CEP, CPF_CNPJ,
+    ENDERECO, NUMERO, COMPLEMENTO,
+    BAIRRO, CIDADE, DATANASCIMENTO
+)
+VALUES (
+    3,
+    'Ana Costa',
+    '70040900',
+    '45612378900',
+    'SQN 210',
+    '45',
+    'Bloco B',
+    'Asa Norte',
+    7,
+    '1992-11-15'
+);
+
+INSERT INTO CLIENTE (
+    ID, NOME, CEP, CPF_CNPJ,
+    ENDERECO, NUMERO, COMPLEMENTO,
+    BAIRRO, CIDADE, DATANASCIMENTO
+)
+VALUES (
+    4,
+    'Carlos Souza',
+    '80010000',
+    '74185296300',
+    'Rua XV de Novembro',
+    '500',
+    '',
+    'Centro',
+    16,
+    '1978-03-30'
+);
+
+INSERT INTO CLIENTE (
+    ID, NOME, CEP, CPF_CNPJ,
+    ENDERECO, NUMERO, COMPLEMENTO,
+    BAIRRO, CIDADE, DATANASCIMENTO
+)
+VALUES (
+    5,
+    'Fernanda Lima',
+    '40010000',
+    '85274196300',
+    'Av. Oceânica',
+    '900',
+    'Casa',
+    'Barra',
+    5,
+    '1995-07-18'
+);
+
+COMMIT;
