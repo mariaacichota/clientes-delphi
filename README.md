@@ -14,7 +14,7 @@ _Pontos importantes que garantem a integridade e qualidade do código implementa
 
 # Estrutura do projeto 
 
-``bash 
+```bash
 CartSysClientes/
 │
 ├── Projeto/
@@ -42,7 +42,7 @@ CartSysClientes/
 │
 └── SQL/
     └── banco.sql
-``
+```
 
 # Tecnologias Utilizadas
 
@@ -61,7 +61,7 @@ Necessário o download do Delphi (no projeto foi usada a versão 12.0) e Firebir
 1. Dentro do Firebird ISQL Tool, execute o comando ``isql -user SYSDBA -password root`` (o usuário e a senha são definidos durante a instalação do Firebird);
 2. Depois, execute as tabelas que serão utilizadas:
 
-`` 
+```bash
 CREATE DATABASE 'C:\Firebird\CartSysClientes.fdb'
 USER 'SYSDBA'
 PASSWORD 'root';
@@ -101,7 +101,7 @@ CREATE TABLE CLIENTE (
 );
 
 COMMIT;
-``
+```
 
 4. Dentro do seu arquivo de conexão, informe o caminho do banco de dados. Nesse caso, o arquivo é o ``DAO/uConexao.pas``, a linha a ser inserida é algo como ``Result.Params.Values['Database'] := 'C:\Firebird\CartSysClientes.fdb';``;
 5. Gere o executável do projeto para que esse possa ser acessado de outra forma, além de dentro da IDE.
