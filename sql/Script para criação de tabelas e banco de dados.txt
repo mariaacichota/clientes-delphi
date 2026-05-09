@@ -6,7 +6,7 @@ PASSWORD 'root';
 -- 2. Conectar ao banco 
 CONNECT 'C:\Firebird\CartSysClientes.fdb'
 USER 'SYSDBA'
-PASSWORD 'masterkey';
+PASSWORD 'root';
 
 -- 3. Criar tabela ESTADO
 CREATE TABLE ESTADO (

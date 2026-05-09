@@ -14,7 +14,7 @@ type
     procedure Alterar(mCliente: TCliente);
     procedure Excluir(mId: Integer);
 
-    function Pesquisar(mNome: String): TFDQuery;
+    function BuscarPorNome(mNome: String): TFDQuery;
     function BuscarPorID(mId: Integer): TFDQuery;
     function BuscarPorCPFCNPJ(ACPFCNPJ: String): TFDQuery;
     function ListarTodos: TFDQuery;
@@ -179,22 +179,6 @@ begin
   end;
 end;
 
-function TClienteDAO.Pesquisar(mNome: String): TFDQuery;
-begin
-  Result := TFDQuery.Create(nil);
-
-  Result.Connection := TConexao.GetConnection;
-
-  Result.SQL.Text :=
-    'SELECT * FROM CLIENTE ' +
-    'WHERE NOME CONTAINING :NOME ' +
-    'ORDER BY NOME';
-
-  Result.ParamByName('NOME').AsString := mNome;
-
-  Result.Open;
-end;
-
 function TClienteDAO.BuscarPorID(mId: Integer): TFDQuery;
 begin
   Result := TFDQuery.Create(nil);
@@ -241,6 +225,28 @@ begin
 
   Result.ParamByName('CPF_CNPJ').AsString :=
     ACPFCNPJ;
+
+  Result.Open;
+end;
+
+function TClienteDAO.BuscarPorNome(mNome: String): TFDQuery;
+begin
+  Result := TFDQuery.Create(nil);
+
+  Result.Connection := TConexao.GetConnection;
+
+  Result.SQL.Text :=
+    'SELECT ' +
+    '  C.*, ' +
+    '  CID.NOME AS NOME_CIDADE, ' +
+    '  EST.UF ' +
+    'FROM CLIENTE C ' +
+    'LEFT JOIN CIDADE CID ON CID.ID = C.CIDADE ' +
+    'LEFT JOIN ESTADO EST ON EST.ID = CID.ESTADOID ' +
+    'WHERE UPPER(C.NOME) CONTAINING UPPER(:NOME) ' +
+    'ORDER BY C.NOME';
+
+  Result.ParamByName('NOME').AsString := mNome;
 
   Result.Open;
 end;

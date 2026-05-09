@@ -1,7 +1,7 @@
 object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
-  Caption = 'frmPrincipal'
+  Caption = 'Principal'
   ClientHeight = 466
   ClientWidth = 624
   Color = clBtnFace

@@ -1,7 +1,7 @@
 object frmCliente: TfrmCliente
   Left = 0
   Top = 0
-  Caption = 'frmCliente'
+  Caption = 'Cliente'
   ClientHeight = 550
   ClientWidth = 1098
   Color = clBtnFace
@@ -10,6 +10,7 @@ object frmCliente: TfrmCliente
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnCreate = FormCreate
   TextHeight = 15
   object pnlGeral: TPanel
     Left = 0
@@ -19,8 +20,8 @@ object frmCliente: TfrmCliente
     Align = alClient
     ShowCaption = False
     TabOrder = 0
-    ExplicitLeft = 16
-    ExplicitHeight = 550
+    ExplicitWidth = 1096
+    ExplicitHeight = 472
     object lblName: TLabel
       Left = 24
       Top = 27
@@ -96,14 +97,15 @@ object frmCliente: TfrmCliente
       Top = 120
       Width = 537
       Height = 23
-      TabOrder = 1
+      TabOrder = 4
     end
     object edtCEP: TEdit
       Left = 24
       Top = 184
       Width = 177
       Height = 23
-      TabOrder = 2
+      TabOrder = 7
+      OnChange = edtCEPChange
       OnExit = edtCEPExit
     end
     object edtCPFCNPJ: TEdit
@@ -111,7 +113,8 @@ object frmCliente: TfrmCliente
       Top = 48
       Width = 217
       Height = 23
-      TabOrder = 3
+      TabOrder = 2
+      OnChange = edtCPFCNPJChange
       OnExit = edtCPFCNPJExit
     end
     object edtNumero: TEdit
@@ -119,28 +122,30 @@ object frmCliente: TfrmCliente
       Top = 120
       Width = 81
       Height = 23
-      TabOrder = 4
+      TabOrder = 5
+      OnKeyPress = edtNumeroKeyPress
     end
     object cbCidade: TComboBox
       Left = 502
       Top = 184
       Width = 257
       Height = 23
-      TabOrder = 5
+      TabOrder = 9
     end
     object cbUF: TComboBox
       Left = 781
       Top = 184
       Width = 114
       Height = 23
-      TabOrder = 6
+      TabOrder = 10
+      OnChange = cbUFChange
     end
     object edtBairro: TEdit
       Left = 223
       Top = 184
       Width = 257
       Height = 23
-      TabOrder = 7
+      TabOrder = 8
     end
     object ckSemNumero: TCheckBox
       Left = 670
@@ -148,7 +153,8 @@ object frmCliente: TfrmCliente
       Width = 97
       Height = 17
       Caption = 'S/N'
-      TabOrder = 8
+      TabOrder = 6
+      OnClick = ckSemNumeroClick
     end
     object edtDataNascimento: TDateTimePicker
       Left = 511
@@ -157,7 +163,8 @@ object frmCliente: TfrmCliente
       Height = 23
       Date = 46151.000000000000000000
       Time = 0.144554016202164300
-      TabOrder = 9
+      TabOrder = 1
+      OnExit = edtDataNascimentoExit
     end
     object btnBuscar: TButton
       Left = 912
@@ -165,7 +172,8 @@ object frmCliente: TfrmCliente
       Width = 129
       Height = 25
       Caption = 'Buscar'
-      TabOrder = 10
+      TabOrder = 3
+      OnClick = btnBuscarClick
     end
   end
   object pnlFooter: TPanel
@@ -176,6 +184,8 @@ object frmCliente: TfrmCliente
     Align = alBottom
     ShowCaption = False
     TabOrder = 1
+    ExplicitTop = 472
+    ExplicitWidth = 1096
     object btnSalvar: TButton
       Left = 24
       Top = 24

@@ -17,7 +17,8 @@ uses
   uPrincipal in '..\View\uPrincipal.pas' {frmPrincipal},
   uRelatorioView in '..\View\uRelatorioView.pas' {frmRelatorio},
   uEstadoDAO in '..\DAO\uEstadoDAO.pas',
-  uCidadeDAO in '..\DAO\uCidadeDAO.pas';
+  uCidadeDAO in '..\DAO\uCidadeDAO.pas',
+  RelatorioDAO in '..\DAO\RelatorioDAO.pas';
 
 {$R *.res}
 

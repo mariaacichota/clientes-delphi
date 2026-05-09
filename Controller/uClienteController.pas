@@ -27,8 +27,8 @@ type
     function BuscarCEP(const ACEP: String; out Endereco: TEnderecoDTO): Boolean;
     function ValidarCPFCNPJ(const Documento: String): Boolean;
     function ClienteExiste(ACPFCNPJ: String;out Qry: TFDQuery): Boolean;
-  private
     function ApenasNumeros(const Texto: String): String;
+  private
     function ValidarCNPJAPI(const ACNPJ: String): Boolean;
     function ValidarCPF(const CPF: String): Boolean;
   end;

@@ -9,7 +9,10 @@ uses
   System.JSON,
   uClienteController,
   uClienteDAO,
-  uClienteModel, FireDAC.Comp.Client;
+  uClienteModel,
+  FireDAC.Comp.Client,
+  System.MaskUtils,
+  System.Character;
 
 type
   TfrmCliente = class(TForm)
@@ -44,12 +47,23 @@ type
     procedure edtCPFCNPJExit(Sender: TObject);
     procedure btnSalvarClick(Sender: TObject);
     procedure btnExcluirClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure edtCPFCNPJChange(Sender: TObject);
+    procedure edtCEPChange(Sender: TObject);
+    procedure edtNumeroKeyPress(Sender: TObject; var Key: Char);
+    procedure ckSemNumeroClick(Sender: TObject);
+    procedure edtDataNascimentoExit(Sender: TObject);
+    procedure cbUFChange(Sender: TObject);
+    procedure btnBuscarClick(Sender: TObject);
 
   private
     FIdCliente: Integer;
 
     procedure LimparCampos;
     procedure CarregarCliente(Qry: TFDQuery);
+    procedure CarregarUFs;
+    procedure CarregarCidades(AUF: String);
+    procedure VerificaESalvaCidade(mCliente: TCliente);
   public
     { Public declarations }
   end;
@@ -59,7 +73,75 @@ var
 
 implementation
 
+uses
+  uEstadoDAO, uCidadeDAO, uConexao;
+
 {$R *.dfm}
+
+procedure TfrmCliente.btnBuscarClick(Sender: TObject);
+var
+  DAO: TClienteDAO;
+  Qry: TFDQuery;
+  TextoBusca: String;
+begin
+  DAO := TClienteDAO.Create;
+
+  try
+//    TextoBusca :=
+//      Trim(edtCPFCNPJ.Text);
+//
+//    if TextoBusca <> '' then
+//    begin
+//      Qry := DAO.BuscarPorCPFCNPJ(ApenasNumeros(TextoBusca));
+//    end
+//    else
+    begin
+      TextoBusca :=
+        Trim(edtNome.Text);
+
+      if TextoBusca = '' then
+      begin
+        ShowMessage(
+          'Informe um Nome ou CPF/CNPJ.'
+        );
+
+        Exit;
+      end;
+
+      Qry := DAO.BuscarPorNome(
+        TextoBusca
+      );
+    end;
+
+    try
+      if Qry.IsEmpty then
+      begin
+        ShowMessage(
+          'Cliente não encontrado.'
+        );
+
+        Exit;
+      end;
+
+      if Qry.RecordCount = 1 then
+      begin
+        CarregarCliente(Qry);
+      end
+      else
+      begin
+        ShowMessage(
+          'Mais de um cliente encontrado. Refinar pesquisa.'
+        );
+      end;
+
+    finally
+      Qry.Free;
+    end;
+
+  finally
+    DAO.Free;
+  end;
+end;
 
 procedure TfrmCliente.btnExcluirClick(Sender: TObject);
 var
@@ -97,16 +179,26 @@ procedure TfrmCliente.btnSalvarClick(Sender: TObject);
 var
   Cliente: TCliente;
   DAO: TClienteDAO;
+  Controller: TClienteController;
 begin
   Cliente := TCliente.Create;
   DAO := TClienteDAO.Create;
+
+  VerificaESalvaCidade(Cliente);
 
   try
     Cliente.ID := FIdCliente;
 
     Cliente.Nome := edtNome.Text;
-    Cliente.CEP := edtCEP.Text;
-    Cliente.CPFCNPJ := edtCPFCNPJ.Text;
+
+    Controller := TClienteController.Create;
+    try
+      Cliente.CEP := Controller.ApenasNumeros(edtCEP.Text);
+      Cliente.CPFCNPJ := Controller.ApenasNumeros(edtCPFCNPJ.Text);
+    finally
+      Controller.Free;
+    end;
+
     Cliente.Endereco := edtEndereco.Text;
     Cliente.Numero := edtNumero.Text;
     Cliente.Complemento := '';
@@ -124,7 +216,7 @@ begin
 
     if Cliente.ID = 0 then
     begin
-      Cliente.ID := Random(999999);
+      Cliente.ID := TConexao.GetNextID('GEN_CLIENTE_ID');
 
       DAO.Inserir(Cliente);
 
@@ -142,6 +234,40 @@ begin
   finally
     Cliente.Free;
     DAO.Free;
+  end;
+end;
+
+procedure TfrmCliente.edtCEPChange(Sender: TObject);
+var
+  Texto: String;
+  Controller: TClienteController;
+begin
+
+  Controller := TClienteController.Create;
+  try
+    Texto := Controller.ApenasNumeros(
+      edtCEP.Text
+    );
+
+    edtCEP.OnChange := nil;
+
+    try
+      edtCEP.Text :=
+        FormatMaskText(
+          '00000\-000;0',
+          Texto
+        );
+
+      edtCEP.SelStart :=
+        Length(edtCEP.Text);
+
+    finally
+      edtCEP.OnChange :=
+        edtCEPChange;
+    end;
+
+  finally
+    Controller.Free;
   end;
 end;
 
@@ -168,6 +294,37 @@ begin
       ShowMessage('CEP não encontrado.');
     end;
 
+  finally
+    Controller.Free;
+  end;
+end;
+
+procedure TfrmCliente.edtCPFCNPJChange(Sender: TObject);
+var
+  Texto: String;
+  Controller: TClienteController;
+begin
+
+  Controller := TClienteController.Create;
+  try
+    Texto := Controller.ApenasNumeros(edtCPFCNPJ.Text);
+
+    edtCPFCNPJ.OnChange := nil;
+    try
+      if Length(Texto) <= 11 then
+        begin
+          edtCPFCNPJ.Text := FormatMaskText('000\.000\.000\-00;0', Texto);
+        end
+      else
+        begin
+          edtCPFCNPJ.Text := FormatMaskText('00\.000\.000\/0000\-00;0', Texto);
+        end;
+
+      edtCPFCNPJ.SelStart := Length(edtCPFCNPJ.Text);
+
+    finally
+      edtCPFCNPJ.OnChange := edtCPFCNPJChange;
+    end;
   finally
     Controller.Free;
   end;
@@ -220,6 +377,30 @@ begin
   end;
 end;
 
+procedure TfrmCliente.edtDataNascimentoExit(Sender: TObject);
+begin
+  if edtDataNascimento.Date > Date then
+    begin
+      ShowMessage('A data de nascimento não pode ser maior que hoje.');
+      edtDataNascimento.Date := Date;
+
+      Abort;
+    end;
+end;
+
+procedure TfrmCliente.edtNumeroKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0'..'9', #8]) then
+    Key := #0;
+end;
+
+procedure TfrmCliente.FormCreate(Sender: TObject);
+begin
+  edtDataNascimento.MaxDate := Date;
+
+  CarregarUFs;
+end;
+
 procedure TfrmCliente.LimparCampos;
 begin
   FIdCliente := 0;
@@ -237,6 +418,55 @@ begin
   edtDataNascimento.Date := Date;
 end;
 
+procedure TfrmCliente.VerificaESalvaCidade(mCliente: TCliente);
+var
+  CidadeDAO: TCidadeDAO;
+  CidadeID: Integer;
+begin
+  CidadeDAO := TCidadeDAO.Create;
+
+  try
+    CidadeID := CidadeDAO.BuscarCidade(cbCidade.Text, cbUF.Text);
+
+    if CidadeID = 0 then
+      CidadeID := CidadeDAO.InserirCidade(cbCidade.Text, cbUF.Text);
+
+    mCliente.Cidade := CidadeID;
+
+  finally
+    CidadeDAO.Free;
+  end;
+end;
+
+procedure TfrmCliente.CarregarCidades(AUF: String);
+var
+  DAO: TCidadeDAO;
+  Qry: TFDQuery;
+begin
+  DAO := TCidadeDAO.Create;
+  try
+    Qry := DAO.ListarPorEstado(AUF);
+    try
+      cbCidade.Items.Clear;
+
+      while not Qry.Eof do
+        begin
+          cbCidade.Items.AddObject(
+            Qry.FieldByName('NOME').AsString,
+            TObject(Qry.FieldByName('ID').AsInteger));
+
+          Qry.Next;
+        end;
+
+    finally
+      Qry.Free;
+    end;
+
+  finally
+    DAO.Free;
+  end;
+end;
+
 procedure TfrmCliente.CarregarCliente(Qry: TFDQuery);
 begin
   FIdCliente := Qry.FieldByName('ID').AsInteger;
@@ -250,6 +480,49 @@ begin
   cbCidade.Text := Qry.FieldByName('NOME_CIDADE').AsString;
   cbUF.Text := Qry.FieldByName('UF').AsString;
   edtDataNascimento.Date := Qry.FieldByName('DATANASCIMENTO').AsDateTime;
+end;
+
+procedure TfrmCliente.CarregarUFs;
+var
+  DAO: TEstadoDAO;
+  Qry: TFDQuery;
+begin
+  DAO := TEstadoDAO.Create;
+  try
+    Qry := DAO.ListarEstados;
+    try
+      cbUF.Items.Clear;
+
+      while not Qry.Eof do
+        begin
+          cbUF.Items.Add(Qry.FieldByName('UF').AsString);
+          Qry.Next;
+        end;
+
+    finally
+      Qry.Free;
+    end;
+
+  finally
+    DAO.Free;
+  end;
+end;
+
+procedure TfrmCliente.cbUFChange(Sender: TObject);
+begin
+  if cbUF.ItemIndex >= 0 then
+    CarregarCidades(cbUF.Items[cbUF.ItemIndex]);
+end;
+
+procedure TfrmCliente.ckSemNumeroClick(Sender: TObject);
+begin
+  edtNumero.Enabled :=
+    not ckSemNumero.Checked;
+
+  if ckSemNumero.Checked then
+    edtNumero.Text := 'S/N'
+  else
+    edtNumero.Clear;
 end;
 
 end.

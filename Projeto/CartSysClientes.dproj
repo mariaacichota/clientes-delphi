@@ -143,6 +143,7 @@
         </DCCReference>
         <DCCReference Include="..\DAO\uEstadoDAO.pas"/>
         <DCCReference Include="..\DAO\uCidadeDAO.pas"/>
+        <DCCReference Include="..\DAO\RelatorioDAO.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
