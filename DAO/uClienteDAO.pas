@@ -16,6 +16,7 @@ type
 
     function Pesquisar(mNome: String): TFDQuery;
     function BuscarPorID(mId: Integer): TFDQuery;
+    function BuscarPorCPFCNPJ(ACPFCNPJ: String): TFDQuery;
     function ListarTodos: TFDQuery;
   end;
 
@@ -218,6 +219,28 @@ begin
   Result.SQL.Text :=
     'SELECT * FROM CLIENTE ' +
     'ORDER BY NOME';
+
+  Result.Open;
+end;
+
+function TClienteDAO.BuscarPorCPFCNPJ(ACPFCNPJ: String): TFDQuery;
+begin
+  Result := TFDQuery.Create(nil);
+
+  Result.Connection := TConexao.GetConnection;
+
+  Result.SQL.Text :=
+    'SELECT ' +
+    '  C.*, ' +
+    '  CID.NOME AS NOME_CIDADE, ' +
+    '  EST.UF ' +
+    'FROM CLIENTE C ' +
+    '  LEFT JOIN CIDADE CID ON CID.ID = C.CIDADE ' +
+    '  LEFT JOIN ESTADO EST ON EST.ID = CID.ESTADOID ' +
+    'WHERE C.CPF_CNPJ = :CPF_CNPJ';
+
+  Result.ParamByName('CPF_CNPJ').AsString :=
+    ACPFCNPJ;
 
   Result.Open;
 end;

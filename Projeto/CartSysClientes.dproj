@@ -141,6 +141,8 @@
             <Form>frmRelatorio</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="..\DAO\uEstadoDAO.pas"/>
+        <DCCReference Include="..\DAO\uCidadeDAO.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

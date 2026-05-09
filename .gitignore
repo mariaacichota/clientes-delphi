@@ -4,3 +4,4 @@
 /View/__history
 *.identcache
 *.local
+/Controller/__history

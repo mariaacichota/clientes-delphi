@@ -3,7 +3,7 @@ unit uCidadeModel;
 interface
 
 uses
-  uEstado;
+  uEstadoModel;
 
 type
   TCidade = class

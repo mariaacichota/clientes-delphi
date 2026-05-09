@@ -14,7 +14,8 @@ uses
   FireDAC.UI.Intf,
   FireDAC.VCLUI.Wait,
   FireDAC.Stan.Intf,
-  FireDAC.DApt;
+  FireDAC.DApt,
+  FireDAC.Stan.Factory;
 
 type
   TConexao = class
@@ -23,11 +24,15 @@ type
 
   public
     class function GetConnection: TFDConnection;
+    class function GetNextID(ASequence: String): Integer;
     class procedure Conectar;
     class procedure Desconectar;
   end;
 
 implementation
+
+uses
+  Vcl.Dialogs;
 
 class procedure TConexao.Conectar;
 begin
@@ -37,9 +42,9 @@ begin
   FConnection := TFDConnection.Create(nil);
 
   try
-    FConnection.DriverName := 'FB';
-
     FConnection.Params.Clear;
+
+    FConnection.Params.DriverID := 'FB';
 
     FConnection.Params.Add(
       'Database=D:\Repository\clientes-delphi\sql\CartSysClientes.fdb'
@@ -86,6 +91,29 @@ begin
     Conectar;
 
   Result := FConnection;
+end;
+
+class function TConexao.GetNextID(ASequence: String): Integer;
+var
+  Qry: TFDQuery;
+begin
+  Qry := TFDQuery.Create(nil);
+
+  try
+    Qry.Connection := GetConnection;
+
+    Qry.SQL.Text :=
+      'SELECT NEXT VALUE FOR ' +
+      ASequence +
+      ' AS ID FROM RDB$DATABASE';
+
+    Qry.Open;
+
+    Result := Qry.FieldByName('ID').AsInteger;
+
+  finally
+    Qry.Free;
+  end;
 end;
 
 initialization
