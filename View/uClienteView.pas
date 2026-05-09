@@ -83,56 +83,46 @@ var
   DAO: TClienteDAO;
   Qry: TFDQuery;
   TextoBusca: String;
+  Controller: TClienteController;
 begin
   DAO := TClienteDAO.Create;
 
   try
-//    TextoBusca :=
-//      Trim(edtCPFCNPJ.Text);
-//
-//    if TextoBusca <> '' then
-//    begin
-//      Qry := DAO.BuscarPorCPFCNPJ(ApenasNumeros(TextoBusca));
-//    end
-//    else
-    begin
-      TextoBusca :=
-        Trim(edtNome.Text);
+    TextoBusca := Trim(edtCPFCNPJ.Text);
 
-      if TextoBusca = '' then
+    if TextoBusca <> '' then
       begin
-        ShowMessage(
-          'Informe um Nome ou CPF/CNPJ.'
-        );
+        Controller := TClienteController.Create;
+        try
+              Qry := DAO.BuscarPorCPFCNPJ(Controller.ApenasNumeros(TextoBusca));
+        finally
+          Controller.Free;
+        end;
+      end
+    else
+      begin
+        TextoBusca := Trim(edtNome.Text);
 
-        Exit;
+        if TextoBusca = '' then
+          begin
+            ShowMessage('Informe um Nome ou CPF/CNPJ.');
+            Exit;
+          end;
+
+        Qry := DAO.BuscarPorNome(TextoBusca);
       end;
-
-      Qry := DAO.BuscarPorNome(
-        TextoBusca
-      );
-    end;
 
     try
       if Qry.IsEmpty then
-      begin
-        ShowMessage(
-          'Cliente não encontrado.'
-        );
-
-        Exit;
-      end;
+        begin
+          ShowMessage('Cliente não encontrado.');
+          Exit;
+        end;
 
       if Qry.RecordCount = 1 then
-      begin
-        CarregarCliente(Qry);
-      end
+        CarregarCliente(Qry)
       else
-      begin
-        ShowMessage(
-          'Mais de um cliente encontrado. Refinar pesquisa.'
-        );
-      end;
+        ShowMessage('Mais de um cliente encontrado. Refinar pesquisa.');
 
     finally
       Qry.Free;
@@ -148,10 +138,10 @@ var
   DAO: TClienteDAO;
 begin
   if FIdCliente = 0 then
-  begin
-    ShowMessage('Nenhum cliente carregado.');
-    Exit;
-  end;
+    begin
+      ShowMessage('Nenhum cliente carregado.');
+      Exit;
+    end;
 
   if MessageDlg(
        'Deseja realmente excluir este cliente?',
@@ -215,19 +205,16 @@ begin
       edtDataNascimento.Date;
 
     if Cliente.ID = 0 then
-    begin
-      Cliente.ID := TConexao.GetNextID('GEN_CLIENTE_ID');
-
-      DAO.Inserir(Cliente);
-
-      ShowMessage('Cliente cadastrado com sucesso.');
-    end
+      begin
+        Cliente.ID := TConexao.GetNextID('GEN_CLIENTE_ID');
+        DAO.Inserir(Cliente);
+        ShowMessage('Cliente cadastrado com sucesso.');
+      end
     else
-    begin
-      DAO.Alterar(Cliente);
-
-      ShowMessage('Cliente alterado com sucesso.');
-    end;
+      begin
+        DAO.Alterar(Cliente);
+        ShowMessage('Cliente alterado com sucesso.');
+      end;
 
     LimparCampos;
 
@@ -245,22 +232,12 @@ begin
 
   Controller := TClienteController.Create;
   try
-    Texto := Controller.ApenasNumeros(
-      edtCEP.Text
-    );
+    Texto := Controller.ApenasNumeros(edtCEP.Text);
 
     edtCEP.OnChange := nil;
-
     try
-      edtCEP.Text :=
-        FormatMaskText(
-          '00000\-000;0',
-          Texto
-        );
-
-      edtCEP.SelStart :=
-        Length(edtCEP.Text);
-
+      edtCEP.Text := FormatMaskText('00000\-000;0', Texto);
+      edtCEP.SelStart := Length(edtCEP.Text);
     finally
       edtCEP.OnChange :=
         edtCEPChange;
@@ -280,19 +257,16 @@ begin
     Exit;
 
   Controller := TClienteController.Create;
-
   try
     if Controller.BuscarCEP(edtCEP.Text, Endereco) then
-    begin
-      edtEndereco.Text := Endereco.Logradouro;
-      edtBairro.Text := Endereco.Bairro;
-      cbCidade.Text := Endereco.Cidade;
-      cbUF.Text := Endereco.UF;
-    end
+      begin
+        edtEndereco.Text := Endereco.Logradouro;
+        edtBairro.Text := Endereco.Bairro;
+        cbCidade.Text := Endereco.Cidade;
+        cbUF.Text := Endereco.UF;
+      end
     else
-    begin
       ShowMessage('CEP não encontrado.');
-    end;
 
   finally
     Controller.Free;
@@ -312,14 +286,10 @@ begin
     edtCPFCNPJ.OnChange := nil;
     try
       if Length(Texto) <= 11 then
-        begin
-          edtCPFCNPJ.Text := FormatMaskText('000\.000\.000\-00;0', Texto);
-        end
+        edtCPFCNPJ.Text := FormatMaskText('000\.000\.000\-00;0', Texto)
       else
-        begin
-          edtCPFCNPJ.Text := FormatMaskText('00\.000\.000\/0000\-00;0', Texto);
-        end;
-
+        edtCPFCNPJ.Text := FormatMaskText('00\.000\.000\/0000\-00;0', Texto);
+        
       edtCPFCNPJ.SelStart := Length(edtCPFCNPJ.Text);
 
     finally
@@ -340,37 +310,33 @@ begin
     Exit;
 
   Controller := TClienteController.Create;
-
   try
     if not Controller.ValidarCPFCNPJ(edtCPFCNPJ.Text) then
-    begin
-      ShowMessage('CPF/CNPJ inválido.');
-
-      edtCPFCNPJ.SetFocus;
-    end;
-
-    if Controller.ClienteExiste(edtCPFCNPJ.Text, Qry) then
-    begin
-      Resposta := MessageDlg(
-        'Cliente já cadastrado.' + sLineBreak +
-        'Deseja visualizar o cadastro?',
-        mtConfirmation,
-        [mbYes, mbNo],
-        0
-      );
-
-      if Resposta = mrYes then
       begin
-        CarregarCliente(Qry);
-      end
-      else
-      begin
-        edtCPFCNPJ.Clear;
+        ShowMessage('CPF/CNPJ inválido.');
         edtCPFCNPJ.SetFocus;
       end;
 
-      Qry.Free;
-    end;
+    if Controller.ClienteExiste(edtCPFCNPJ.Text, Qry) then
+      begin
+        Resposta := MessageDlg(
+          'Cliente já cadastrado.' + sLineBreak +
+          'Deseja visualizar o cadastro?',
+          mtConfirmation,
+          [mbYes, mbNo],
+          0
+        );
+
+        if Resposta = mrYes then
+          CarregarCliente(Qry)
+        else
+          begin
+            edtCPFCNPJ.Clear;
+            edtCPFCNPJ.SetFocus;
+          end;
+
+        Qry.Free;
+      end;
 
   finally
     Controller.Free;

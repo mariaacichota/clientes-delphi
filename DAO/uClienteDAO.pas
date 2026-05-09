@@ -16,7 +16,7 @@ type
 
     function BuscarPorNome(mNome: String): TFDQuery;
     function BuscarPorID(mId: Integer): TFDQuery;
-    function BuscarPorCPFCNPJ(ACPFCNPJ: String): TFDQuery;
+    function BuscarPorCPFCNPJ(mCPFCNPJ: String): TFDQuery;
     function ListarTodos: TFDQuery;
   end;
 
@@ -207,7 +207,7 @@ begin
   Result.Open;
 end;
 
-function TClienteDAO.BuscarPorCPFCNPJ(ACPFCNPJ: String): TFDQuery;
+function TClienteDAO.BuscarPorCPFCNPJ(mCPFCNPJ: String): TFDQuery;
 begin
   Result := TFDQuery.Create(nil);
 
@@ -223,8 +223,7 @@ begin
     '  LEFT JOIN ESTADO EST ON EST.ID = CID.ESTADOID ' +
     'WHERE C.CPF_CNPJ = :CPF_CNPJ';
 
-  Result.ParamByName('CPF_CNPJ').AsString :=
-    ACPFCNPJ;
+  Result.ParamByName('CPF_CNPJ').AsString := mCPFCNPJ;
 
   Result.Open;
 end;

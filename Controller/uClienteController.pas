@@ -24,33 +24,33 @@ type
 type
   TClienteController = class
   public
-    function BuscarCEP(const ACEP: String; out Endereco: TEnderecoDTO): Boolean;
-    function ValidarCPFCNPJ(const Documento: String): Boolean;
-    function ClienteExiste(ACPFCNPJ: String;out Qry: TFDQuery): Boolean;
-    function ApenasNumeros(const Texto: String): String;
+    function BuscarCEP(const mCEP: String; out mEndereco: TEnderecoDTO): Boolean;
+    function ValidarCPFCNPJ(const mDocumento: String): Boolean;
+    function ClienteExiste(mCPFCNPJ: String; out mQry: TFDQuery): Boolean;
+    function ApenasNumeros(const mTexto: String): String;
   private
-    function ValidarCNPJAPI(const ACNPJ: String): Boolean;
-    function ValidarCPF(const CPF: String): Boolean;
+    function ValidarCNPJAPI(const mCNPJ: String): Boolean;
+    function ValidarCPF(const mCPF: String): Boolean;
   end;
 
 implementation
 
 { TClienteController }
 
-function TClienteController.ApenasNumeros(const Texto: String): String;
+function TClienteController.ApenasNumeros(const mTexto: String): String;
 var
   I: Integer;
 begin
   Result := '';
 
-  for I := 1 to Length(Texto) do
-  begin
-    if Texto[I] in ['0'..'9'] then
-      Result := Result + Texto[I];
-  end;
+  for I := 1 to Length(mTexto) do
+    begin
+      if mTexto[I] in ['0'..'9'] then
+        Result := Result + mTexto[I];
+    end;
 end;
 
-function TClienteController.BuscarCEP(const ACEP: String;out Endereco: TEnderecoDTO): Boolean;
+function TClienteController.BuscarCEP(const mCEP: String; out mEndereco: TEnderecoDTO): Boolean;
 var
   RESTClient: TRESTClient;
   RESTRequest: TRESTRequest;
@@ -60,8 +60,7 @@ var
 begin
   Result := False;
 
-  CEP := ApenasNumeros(ACEP);
-
+  CEP := ApenasNumeros(mCEP);
   if Length(CEP) <> 8 then
     Exit;
 
@@ -85,18 +84,18 @@ begin
     JSON := TJSONObject.ParseJSONValue(RESTResponse.Content) as TJSONObject;
     try
       if Assigned(JSON) then
-      begin
-        if JSON.GetValue('erro') <> nil then
-          Exit;
+        begin
+          if JSON.GetValue('erro') <> nil then
+            Exit;
 
-        Endereco.CEP := JSON.GetValue<String>('cep');
-        Endereco.Logradouro := JSON.GetValue<String>('logradouro');
-        Endereco.Bairro := JSON.GetValue<String>('bairro');
-        Endereco.Cidade := JSON.GetValue<String>('localidade');
-        Endereco.UF := JSON.GetValue<String>('uf');
+          mEndereco.CEP := JSON.GetValue<String>('cep');
+          mEndereco.Logradouro := JSON.GetValue<String>('logradouro');
+          mEndereco.Bairro := JSON.GetValue<String>('bairro');
+          mEndereco.Cidade := JSON.GetValue<String>('localidade');
+          mEndereco.UF := JSON.GetValue<String>('uf');
 
-        Result := True;
-      end;
+          Result := True;
+        end;
 
     finally
       JSON.Free;
@@ -109,9 +108,7 @@ begin
   end;
 end;
 
-function TClienteController.ValidarCNPJAPI(
-  const ACNPJ: String
-): Boolean;
+function TClienteController.ValidarCNPJAPI(const mCNPJ: String): Boolean;
 var
   RESTClient: TRESTClient;
   RESTRequest: TRESTRequest;
@@ -121,8 +118,7 @@ var
 begin
   Result := False;
 
-  CNPJ := ApenasNumeros(ACNPJ);
-
+  CNPJ := ApenasNumeros(mCNPJ);
   if Length(CNPJ) <> 14 then
     Exit;
 
@@ -144,17 +140,17 @@ begin
       RESTRequest.Execute;
 
       if RESTResponse.StatusCode = 200 then
-      begin
-        JSON := TJSONObject.ParseJSONValue(
-          RESTResponse.Content
-        ) as TJSONObject;
+        begin
+          JSON := TJSONObject.ParseJSONValue(
+            RESTResponse.Content
+          ) as TJSONObject;
 
-        try
-          Result := Assigned(JSON);
-        finally
-          JSON.Free;
-        end;
-      end
+          try
+            Result := Assigned(JSON);
+          finally
+            JSON.Free;
+          end;
+        end
       else
         Result := False;
 
@@ -169,9 +165,7 @@ begin
   end;
 end;
 
-function TClienteController.ValidarCPF(
-  const CPF: String
-): Boolean;
+function TClienteController.ValidarCPF(const mCPF: String): Boolean;
 var
   Soma: Integer;
   Resto: Integer;
@@ -181,17 +175,17 @@ var
 begin
   Result := False;
 
-  if Length(CPF) <> 11 then
+  if Length(mCPF) <> 11 then
     Exit;
 
-  if CPF = StringOfChar(CPF[1], 11) then
+  if mCPF = StringOfChar(mCPF[1], 11) then
     Exit;
 
   Soma := 0;
 
   for I := 1 to 9 do
     Soma := Soma +
-      StrToInt(CPF[I]) * (11 - I);
+      StrToInt(mCPF[I]) * (11 - I);
 
   Resto := (Soma * 10) mod 11;
 
@@ -204,7 +198,7 @@ begin
 
   for I := 1 to 10 do
     Soma := Soma +
-      StrToInt(CPF[I]) * (12 - I);
+      StrToInt(mCPF[I]) * (12 - I);
 
   Resto := (Soma * 10) mod 11;
 
@@ -214,15 +208,15 @@ begin
   Dig2 := Resto;
 
   Result :=
-    (Dig1 = StrToInt(CPF[10])) and
-    (Dig2 = StrToInt(CPF[11]));
+    (Dig1 = StrToInt(mCPF[10])) and
+    (Dig2 = StrToInt(mCPF[11]));
 end;
 
-function TClienteController.ValidarCPFCNPJ(const Documento: String): Boolean;
+function TClienteController.ValidarCPFCNPJ(const mDocumento: String): Boolean;
 var
   Doc: String;
 begin
-  Doc := ApenasNumeros(Documento);
+  Doc := ApenasNumeros(mDocumento);
 
   if Length(Doc) = 11 then
     Result := ValidarCPF(Doc)
@@ -232,18 +226,15 @@ begin
     Result := False;
 end;
 
-function TClienteController.ClienteExiste(ACPFCNPJ: String;out Qry: TFDQuery): Boolean;
+function TClienteController.ClienteExiste(mCPFCNPJ: String; out mQry: TFDQuery): Boolean;
 var
   DAO: TClienteDAO;
 begin
   DAO := TClienteDAO.Create;
 
   try
-    Qry := DAO.BuscarPorCPFCNPJ(
-      ApenasNumeros(ACPFCNPJ)
-    );
-
-    Result := not Qry.IsEmpty;
+    mQry := DAO.BuscarPorCPFCNPJ(ApenasNumeros(mCPFCNPJ));
+    Result := not mQry.IsEmpty;
 
   finally
     DAO.Free;

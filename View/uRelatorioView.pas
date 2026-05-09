@@ -99,11 +99,6 @@ begin
       );
 
     qryRelatorio.Open;
-    ShowMessage(
-  qryRelatorio.FieldByName(
-    'ENDERECO_COMPLETO'
-  ).AsString
-);
     ppReport1.Print;
 
   finally
@@ -207,7 +202,6 @@ end;
 procedure TfrmRelatorio.FormCreate(Sender: TObject);
 begin
   qryRelatorio.Connection := TConexao.GetConnection;
-
   CarregarUFs;
 end;
 

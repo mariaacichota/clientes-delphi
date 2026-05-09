@@ -8,17 +8,9 @@ uses
 type
   TCidadeDAO = class
   public
-    function ListarPorEstado(AUF: String): TFDQuery;
-
-    function BuscarCidade(
-      ANome,
-      AUF: String
-    ): Integer;
-
-    function InserirCidade(
-      ANome,
-      AUF: String
-    ): Integer;
+    function ListarPorEstado(mUF: String): TFDQuery;
+    function BuscarCidade(mNome, mUF: String): Integer;
+    function InserirCidade(mNome, mUF: String): Integer;
   end;
 
 implementation
@@ -27,9 +19,7 @@ uses
   System.SysUtils,
   uConexao;
 
-function TCidadeDAO.ListarPorEstado(
-  AUF: String
-): TFDQuery;
+function TCidadeDAO.ListarPorEstado(mUF: String): TFDQuery;
 begin
   Result := TFDQuery.Create(nil);
 
@@ -42,15 +32,12 @@ begin
     'WHERE E.UF = :UF ' +
     'ORDER BY C.NOME';
 
-  Result.ParamByName('UF').AsString := AUF;
+  Result.ParamByName('UF').AsString := mUF;
 
   Result.Open;
 end;
 
-function TCidadeDAO.BuscarCidade(
-  ANome,
-  AUF: String
-): Integer;
+function TCidadeDAO.BuscarCidade(mNome, mUF: String): Integer;
 var
   Qry: TFDQuery;
 begin
@@ -68,8 +55,8 @@ begin
       'WHERE UPPER(C.NOME)=UPPER(:NOME) ' +
       'AND E.UF = :UF';
 
-    Qry.ParamByName('NOME').AsString := ANome;
-    Qry.ParamByName('UF').AsString := AUF;
+    Qry.ParamByName('NOME').AsString := mNome;
+    Qry.ParamByName('UF').AsString := mUF;
 
     Qry.Open;
 
@@ -81,10 +68,7 @@ begin
   end;
 end;
 
-function TCidadeDAO.InserirCidade(
-  ANome,
-  AUF: String
-): Integer;
+function TCidadeDAO.InserirCidade(mNome, mUF: String): Integer;
 var
   Qry: TFDQuery;
   EstadoID: Integer;
@@ -98,7 +82,7 @@ begin
       'SELECT ID FROM ESTADO ' +
       'WHERE UF = :UF';
 
-    Qry.ParamByName('UF').AsString := AUF;
+    Qry.ParamByName('UF').AsString := mUF;
 
     Qry.Open;
 
@@ -107,8 +91,7 @@ begin
         'UF não encontrada.'
       );
 
-    EstadoID :=
-      Qry.FieldByName('ID').AsInteger;
+    EstadoID := Qry.FieldByName('ID').AsInteger;
 
     Qry.Close;
 
@@ -125,7 +108,7 @@ begin
       ')';
 
     Qry.ParamByName('ID').AsInteger := Result;
-    Qry.ParamByName('NOME').AsString := ANome;
+    Qry.ParamByName('NOME').AsString := mNome;
     Qry.ParamByName('ESTADOID').AsInteger := EstadoID;
 
     Qry.ExecSQL;
